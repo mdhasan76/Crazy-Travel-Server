@@ -18,10 +18,21 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 const run = async () => {
     const serviceCollection = client.db("travel").collection('services')
 
-    app.get('/services', async (req, res) => {
+
+    //Home page data
+    app.get('/shortServices', async (req, res) => {
         const query = {};
         const services = serviceCollection.find(query);
         const result = await services.limit(3).toArray();
+        res.send(result)
+    })
+
+
+    //service page data
+    app.get('/services', async (req, res) => {
+        const query = {}
+        const services = serviceCollection.find(query);
+        const result = await services.toArray();
         res.send(result)
     })
 }
