@@ -5,6 +5,9 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 const app = express();
 
+
+//middleware
+app.use(express.json())
 app.use(cors());
 
 app.get('/', (req, res) => {
@@ -16,7 +19,8 @@ const uri = `mongodb+srv://${process.env.SECRET_USER_ID}:${process.env.SECRET_PA
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 const run = async () => {
-    const serviceCollection = client.db("travel").collection('services')
+    const serviceCollection = client.db("travel").collection('services');
+    const reviewData = client.db("travel").collection("Client_Review");
 
 
     //Home page data
@@ -44,8 +48,27 @@ const run = async () => {
     })
 
     //review post
-    app.post('/review', async (req, res) => {
+    app.post('/addreview', async (req, res) => {
+        const data = req.body;
+        const doc = {
+            reviewText: data.review,
+            serviceId: data.serviceId,
+            title: data.title,
+            userInfo: data.reviewer
+        }
+        const result = await reviewData.insertOne(doc)
+        res.send(result)
+        // console.log(result)
+    })
 
+    //Get review Data
+    app.get('/review/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { serviceId: id }
+        const review = reviewData.find(query)
+        const result = await review.toArray();
+        // const review = reviewData.filter(review => review.serviceId === id);
+        res.send(result)
     })
 }
 
