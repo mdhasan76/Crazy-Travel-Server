@@ -42,7 +42,7 @@ const run = async () => {
     //create json web token 
     app.post('/jwt', async (req, res) => {
         const user = req.body;
-        const token = jwt.sign(user, process.env.SECRET_jwt, { expiresIn: '1h' })
+        const token = jwt.sign(user, process.env.SECRET_jwt, { expiresIn: '24h' })
         res.send({ token })
     })
 
