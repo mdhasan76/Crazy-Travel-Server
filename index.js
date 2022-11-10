@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
@@ -15,6 +16,21 @@ app.get('/', (req, res) => {
 })
 
 
+const verifyJwt = (req, res, next) => {
+    const authHeaders = req.headers.authorization;
+    if (!authHeaders) {
+        return res.status(401).send({ message: "invalid User" })
+    }
+    const token = authHeaders.split(' ')[1];
+    jwt.verify(token, process.env.SECRET_jwt, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: "invalid User" })
+        }
+        req.decoded = decoded;
+        next()
+    })
+}
+
 const uri = `mongodb+srv://${process.env.SECRET_USER_ID}:${process.env.SECRET_PASS}@cluster0.di4ojvf.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -22,6 +38,13 @@ const run = async () => {
     const serviceCollection = client.db("travel").collection('services');
     const reviewData = client.db("travel").collection("Client_Review");
 
+
+    //create json web token 
+    app.post('/jwt', async (req, res) => {
+        const user = req.body;
+        const token = jwt.sign(user, process.env.SECRET_jwt, { expiresIn: '1h' })
+        res.send({ token })
+    })
 
     //Home page data
     app.get('/shortServices', async (req, res) => {
@@ -81,6 +104,7 @@ const run = async () => {
 
 
 
+
     //Get review Data
     app.get('/review/:id', async (req, res) => {
         const id = req.params.id;
@@ -91,7 +115,11 @@ const run = async () => {
     })
 
     //perticuler User Reviews
-    app.get('/myreviews', async (req, res) => {
+    app.get('/myreviews', verifyJwt, async (req, res) => {
+        const decoded = req.decoded;
+        if (decoded.email !== req.query.email) {
+            return res.status(403).send({ message: "2 numberi koro keno vai" })
+        }
         let query = {};
         if (req.query.email) {
             query = {
