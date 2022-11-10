@@ -111,6 +111,26 @@ const run = async () => {
         res.send(result)
     })
 
+    app.get('/editreview/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const review = await reviewData.findOne(query);
+        res.send(review);
+    })
+
+    app.patch('/editreview/:id', async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: ObjectId(id) };
+        const updateDoc = {
+            $set: {
+                reviewText: req.body.updateText
+            }
+        }
+        const result = await reviewData.updateOne(filter, updateDoc);
+
+        res.send(result)
+    })
+
 }
 
 run().catch(err => console.log(err))
