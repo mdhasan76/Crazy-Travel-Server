@@ -47,6 +47,23 @@ const run = async () => {
         res.send(service)
     })
 
+
+    //add New Service
+    app.post('/addservice', async (req, res) => {
+        const data = req.body;
+        const doc = {
+            img: data.img,
+            title: data.title,
+            price: data.price,
+            description: data.description
+        }
+        const result = await serviceCollection.insertOne(doc);
+        res.send(result)
+    })
+
+
+
+
     //review post
     app.post('/addreview', async (req, res) => {
         const data = req.body;
@@ -63,19 +80,6 @@ const run = async () => {
     })
 
 
-    //add New Service
-    app.post('/addservice', async (req, res) => {
-        const data = req.body;
-        const doc = {
-            img: data.img,
-            title: data.title,
-            price: data.price,
-            description: data.description
-        }
-        const result = await serviceCollection.insertOne(doc);
-        res.send(result)
-    })
-
 
     //Get review Data
     app.get('/review/:id', async (req, res) => {
@@ -83,21 +87,27 @@ const run = async () => {
         const query = { serviceId: id }
         const review = reviewData.find(query)
         const result = await review.toArray();
-        // const review = reviewData.filter(review => review.serviceId === id);
         res.send(result)
     })
 
     //perticuler User Reviews
     app.get('/myreviews', async (req, res) => {
-        const userEmail = req.query.email;
-        console.log(userEmail)
-        const query = {
-            userInfo: {
-                email: userEmail
+        let query = {};
+        if (req.query.email) {
+            query = {
+                email: req.query.email
             }
         }
         const cursor = reviewData.find(query);
         const result = await cursor.toArray();
+        // console.log(result)
+        res.send(result)
+    })
+
+    app.delete('/deletereview/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) }
+        const result = await reviewData.deleteOne(query);
         res.send(result)
     })
 
