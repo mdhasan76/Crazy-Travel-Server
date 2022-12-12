@@ -38,6 +38,16 @@ const run = async () => {
     const serviceCollection = client.db("travel").collection('services');
     const reviewData = client.db("travel").collection("Client_Review");
 
+    //PortFolio Database
+    const myPortfolio = client.db("travel").collection("My_Portfolio");
+
+    app.get('/portfolio/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { siteId: parseInt(id) };
+        const result = await myPortfolio.findOne(query);
+        res.send(result)
+    })
+
 
     //create json web token 
     app.post('/jwt', async (req, res) => {
