@@ -12,14 +12,14 @@ app.use(express.json())
 app.use(cors());
 
 app.get('/', (req, res) => {
-    res.send('Assainment server is running')
+    res.send('Crazy travel server is running')
 })
 
 
 const verifyJwt = (req, res, next) => {
     const authHeaders = req.headers.authorization;
     if (!authHeaders) {
-        return res.status(401).send({ message: "invalid User" })
+        return res.status(401).send({ message: "Fist ai Error Khaiso vhai" })
     }
     const token = authHeaders.split(' ')[1];
     jwt.verify(token, process.env.SECRET_jwt, (err, decoded) => {
@@ -125,18 +125,19 @@ const run = async () => {
     })
 
     //perticuler User Reviews
-    app.get('/myreviews', verifyJwt, async (req, res) => {
-        const decoded = req.decoded;
-        if (decoded.email !== req.query.email) {
-            return res.status(403).send({ message: "2 numberi koro keno vai" })
-        }
-        let query = {};
-        if (req.query.email) {
-            query = {
-                email: req.query.email
-            }
-        }
-        const cursor = reviewData.find(query);
+    app.get('/myreviews',  async (req, res) => {
+        // const decoded = req.decoded;
+        // if (decoded.email !== req.query.email) {
+        //     return res.status(403).send({ message: "2 numberi koro keno vai" })
+        // }
+        // let query = {};
+        // if (req.query.email) {
+        //     query = {
+        //         email: req.query.email
+        //     }
+        // }
+        const query = req.query.email;
+        const cursor = reviewData.find({email:query});
         const result = await cursor.toArray();
         // console.log(result)
         res.send(result)
@@ -174,5 +175,5 @@ const run = async () => {
 run().catch(err => console.log(err))
 
 app.listen(port, () => {
-    console.log('assainment 11 server on ', port)
+    console.log('Crazy Travel 11 server on ', port)
 })
